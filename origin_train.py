@@ -9,6 +9,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 
+dataset_name = 'monet2photo'
 
 class ReplayBuffer():
     def __init__(self, max_size=50):
@@ -60,7 +61,7 @@ decay_epoch = 100
 size = 256
 input_nc = 3
 output_nc = 3
-path_net_save = 'output/monet2photo/param.pt'
+path_net_save = 'output/'+dataset_name+'/param.pt'
 epoch = 0
 
 netG_A2B = Generator(input_nc, output_nc)
@@ -111,7 +112,7 @@ transforms_ = [transforms.Resize(int(size * 1.12)),
                transforms.RandomHorizontalFlip(),
                transforms.ToTensor(),
                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-dataloader = DataLoader(ImageDataset(root='./datasets', datas='monet2photo', transforms_=transforms_, unaligned=True),
+dataloader = DataLoader(ImageDataset(root='./datasets', datas=dataset_name, transforms_=transforms_, unaligned=True),
                         batch_size=batch_size, shuffle=True, drop_last=True)
 
 # Inputs & targets memory allocation
@@ -218,4 +219,4 @@ for e in range(epoch, n_epochs):
         'netD_B': netD_B.state_dict()
     }
     # Save models checkpoints
-    torch.save(param_dict, 'output/monet2photo/param.pt')
+    torch.save(param_dict, path_net_save)
