@@ -79,9 +79,10 @@ class ReplayBuffer():
 
 for b in datasets_dicts:
     epoch = 0
+    # 在数据集最后会出现取不满一个batch的情况，所以需要drop_last保证向量形状相同
     dataloader = DataLoader(
         ImageDataset(root='./datasets', datas=b, transforms_=transforms_, unaligned=True),
-        batch_size=batch_size, shuffle=True)
+        batch_size=batch_size, shuffle=True, drop_last=True)
     generator_A2B = Generator(input_nc, output_nc).cuda().apply(weights_init_normal)
     generator_B2A = Generator(output_nc, input_nc).cuda().apply(weights_init_normal)
     discriminator_A = Discriminator(input_nc).cuda().apply(weights_init_normal)
@@ -111,11 +112,6 @@ for b in datasets_dicts:
     fake_B_buffer = ReplayBuffer()
     for epoch in range(epoch, n_epochs):
         time_start = time.time()
-        if os.path.exists('output/' + b + '/netG_A2B.pth'):
-            generator_A2B = torch.load('output/' + b + '/netG_A2B.pth')
-            generator_B2A = torch.load('output/' + b + '/netG_B2A.pth')
-            discriminator_A = torch.load('output/' + b + '/netD_A.pth')
-            discriminator_B = torch.load('output/' + b + '/netD_B.pth')
         for i, batch in enumerate(dataloader):
             real_A = Variable(input_A.copy_(batch['A']))
             real_B = Variable(input_B.copy_(batch['B']))
